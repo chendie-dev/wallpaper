@@ -1,0 +1,1 @@
+<view class="classlist data-v-bd381383"><view class="content data-v-bd381383"><view wx:for="{{a}}" wx:for-item="item" class="item data-v-bd381383"><image class="data-v-bd381383" src="{{b}}" mode="aspectFill"></image></view></view></view>

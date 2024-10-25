@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "推荐",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "theme-item": "../../components/theme-item/theme-item"
+  }
+}
