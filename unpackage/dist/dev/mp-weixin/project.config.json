@@ -18,7 +18,7 @@
     }
   },
   "compileType": "miniprogram",
-  "libVersion": "2.25.3",
+  "libVersion": "2.32.1",
   "appid": "touristappid",
   "projectname": "wallpaper",
   "condition": {

@@ -1,9 +1,10 @@
 <template>
 	<view class="homeLayout pageBg">
+		<custom-nav-bar title="推荐"></custom-nav-bar>
 		<view class="banner">
 			<swiper :circular="true" :indicator-dots="true" indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#fff" :autoplay="true" :interval="3000" :duration="1000">
-				<swiper-item v-for="item in 3">
-					<image src="../../common/images/banner2.jpg" mode="aspectFill" ></image>
+				<swiper-item v-for="item in bannerList" :key="item._id">
+					<image :src="item.picurl" mode="aspectFill" ></image>
 				</swiper-item>
 			</swiper>
 		</view> 
@@ -13,9 +14,11 @@
 				<text class="text">公告</text>
 			</view>
 			<view class="center">
-				<swiper vertical="true" :autoplay="true" :interval="3000" :duration="1000">
-					<swiper-item v-for="item in 4">
-						文字
+				<swiper vertical="true" :autoplay="true" :interval="1500" :duration="300">
+					<swiper-item v-for="item in noticeList" :key="item._id">
+						<navigator url="/pages/notice/detail">
+							{{item.title}}
+						</navigator>
 					</swiper-item>
 				</swiper>
 			</view>
@@ -37,8 +40,8 @@
 			</common-title>
 			<view class="content">
 				<scroll-view scroll-x="true">
-					<view class="box" v-for="item in 8">
-						<image src="../../common/images/classify1.jpg" mode="aspectFill"></image>
+					<view class="box" v-for="item in randomList" :key="item._id" @click="goPreview">
+						<image :src="item.smallPicurl" mode="aspectFill"></image>
 					</view>
 				</scroll-view>
 			</view>
@@ -59,6 +62,56 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
+	const bannerList=ref([])
+	const randomList=ref([])
+	const noticeList=ref([])
+	const getBanner=async()=>{
+		const res=await uni.request({
+			url:"https://tea.qingnian8.com/api/bizhi/homeBanner",
+			// header::{
+			// 	"access-key":""
+			// }
+		})
+		if(res.data.errCode===0){
+			bannerList.value=res.data.data
+		}
+	}
+	
+	const getDayRandom=async()=>{
+		const res=await uni.request({
+			url:"https://tea.qingnian8.com/api/bizhi/randomWall",
+			// header::{
+			// 	"access-key":""
+			// }
+		})
+		if(res.data.errCode===0){
+			randomList.value=res.data.data
+		}
+	}
+	const getNotice=async()=>{
+		const res=await uni.request({
+			url:"https://tea.qingnian8.com/api/bizhi/wallNewsList",
+			// header::{
+			// 	"access-key":""
+			// }
+			data:{
+				 select:true
+			}
+		})
+		if(res.data.errCode===0){
+			noticeList.value=res.data.data
+		}
+	}
+	
+	const goPreview=()=>{
+		uni.navigateTo({
+			url:"/pages/preview/preview"
+		})
+	}
+	getBanner()
+	getDayRandom()
+	getNotice()
 </script>
 
 <style lang="scss" scoped>

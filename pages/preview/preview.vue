@@ -6,7 +6,9 @@
 			</swiper-item>
 		</swiper>
 		<view class="mask" v-if="maskShow">
-			<view class="goBack"></view>
+			<view class="goBack" @click="goBack" :style="{top:getStatusBarHeight()+'px'}">
+				<uni-icons type="back" color="#fff" size="20"></uni-icons>
+			</view>
 			<view class="count">3/9</view>
 			<view class="time">
 				<uni-dateformat :date="new Date()" format="hh:mm"></uni-dateformat>
@@ -15,13 +17,13 @@
 				<uni-dateformat :date="new Date()" format="yyyy年MM月dd日"></uni-dateformat>
 			</view>
 			<view class="footer">
-				<view class="box">
+				<view class="box" @click="clickInfoOpen">
 					<uni-icons type="info" size="28"></uni-icons>
 					<view class="text">信息</view>
 				</view>
 				<view class="box">
 					<uni-icons type="star" size="28"></uni-icons>
-					<view class="text">信息</view>
+					<view class="text">评分</view>
 				</view>
 				<view class="box">
 					<uni-icons type="download" size="28"></uni-icons>
@@ -29,17 +31,102 @@
 				</view>
 			</view>
 		</view>
-		<uni-popup ref="infoPopup">
-			信息弹窗
-		</uni-popup>
-	</view>
+		<uni-popup ref="infoPopup" type="bottom">
+					<view class="infoPopup">
+						<view class="popHeader">
+							<view></view>
+							<view class="title">壁纸信息</view>
+							<view class="close" @click="clickInfoClose">
+								<uni-icons type="closeempty" size="18" color="#999"></uni-icons>
+							</view>
+						</view>
+						<scroll-view scroll-y>
+							<view class="content">
+								<view class="row">
+									<view class="label">壁纸ID：</view>
+									<!-- <text selectable class="value">{{currentInfo._id}}</text> -->
+								</view>
+								<view class="row">
+									<view class="label">发布者：</view>
+									<!-- <text class="value">{{currentInfo.nickname}}</text> -->
+								</view>
+		
+								<view class="row">
+									<text class="label">评分：</text>
+									<view class='value roteBox'>
+										<!-- <uni-rate readonly touchable :value="currentInfo.score" size="16" />
+										<text class="score">{{currentInfo.score}}分</text> -->
+									</view>
+								</view>
+		
+								<view class="row">
+									<text class="label">摘要：</text>
+									<!-- <view class='value'>
+										{{currentInfo.description}}
+									</view> -->
+								</view>
+		
+								<view class="row">
+									<text class="label">标签：</text>
+									<view class='value tabs'>
+										<!-- <view class="tab" v-for="tab in currentInfo.tabs" :key="tab">
+											{{tab}}
+										</view> -->
+									</view>
+								</view>
+		
+								<view class="copyright">
+									声明：本图片来用户投稿，非商业使用，用于免费学习交流，如侵犯了您的权益，您可以拷贝壁纸ID举报至平台，邮箱513894357@qq.com，管理将删除侵权壁纸，维护您的权益。
+		
+								</view>
+								
+								<view class="safe-area-inset-bottom"></view>
+							</view>
+						</scroll-view>
+					</view>
+				</uni-popup>
+				<uni-popup ref="scorePopup" :is-mask-click="false">
+					<view class="scorePopup">
+						<view class="popHeader">
+							<view></view>
+							<view class="title">{{isScore?'评分过了~':'壁纸评分'}}</view>
+							<view class="close" @click="clickScoreClose">
+								<uni-icons type="closeempty" size="18" color="#999"></uni-icons>
+							</view>
+						</view>
+		
+						<view class="content">
+							<uni-rate v-model="userScore" allowHalf :disabled="isScore" disabled-color="#FFCA3E" />
+							<text class="text">{{userScore}}分</text>
+						</view>
+		
+						<view class="footer">
+							<button @click="submitScore" :disabled="!userScore || isScore" type="default" size="mini"
+								plain>确认评分</button>
+						</view>
+					</view>
+				</uni-popup>
+		
+				</view>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import {getStatusBarHeight} from '@/util/system.js'
 	const maskShow=ref(true);
+	const infoPopup=ref(null)
 	const maskChange=()=>{
 		maskShow.value=!maskShow.value
+	}
+	const clickInfoClose=()=>{
+		infoPopup.value.close()
+	}
+	const clickInfoOpen=()=>{
+		infoPopup.value.open()
+	}
+	
+	const goBack=()=>{
+		uni.navigateBack()
 	}
 </script>
 <style lang="scss" scoped>

@@ -1,9 +1,9 @@
 <template>
 	<view class="classlist">
 		<view class="content">
-			<view class="item" v-for="item in 20">
+			<navigator url="/pages/preview/preview" class="item" v-for="item in 20">
 				<image  src="../../common/images/preview2.jpg" mode="aspectFill"></image>
-			</view>
+			</navigator>
 		</view>
 		
 	</view>
