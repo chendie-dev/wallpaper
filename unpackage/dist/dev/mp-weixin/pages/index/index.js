@@ -1,5 +1,6 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const api_api = require("../../api/api.js");
 if (!Array) {
   const _easycom_custom_nav_bar2 = common_vendor.resolveComponent("custom-nav-bar");
   const _easycom_uni_icons2 = common_vendor.resolveComponent("uni-icons");
@@ -22,41 +23,22 @@ const _sfc_main = {
     const bannerList = common_vendor.ref([]);
     const randomList = common_vendor.ref([]);
     const noticeList = common_vendor.ref([]);
+    const classifyList = common_vendor.ref([]);
     const getBanner = async () => {
-      const res = await common_vendor.index.request({
-        url: "https://tea.qingnian8.com/api/bizhi/homeBanner"
-        // header::{
-        // 	"access-key":""
-        // }
-      });
-      if (res.data.errCode === 0) {
-        bannerList.value = res.data.data;
-      }
+      const res = await api_api.apiGetBanner();
+      bannerList.value = res.data.data;
     };
     const getDayRandom = async () => {
-      const res = await common_vendor.index.request({
-        url: "https://tea.qingnian8.com/api/bizhi/randomWall"
-        // header::{
-        // 	"access-key":""
-        // }
-      });
-      if (res.data.errCode === 0) {
-        randomList.value = res.data.data;
-      }
+      const res = await api_api.apiGetDayRandom();
+      randomList.value = res.data.data;
     };
     const getNotice = async () => {
-      const res = await common_vendor.index.request({
-        url: "https://tea.qingnian8.com/api/bizhi/wallNewsList",
-        // header::{
-        // 	"access-key":""
-        // }
-        data: {
-          select: true
-        }
-      });
-      if (res.data.errCode === 0) {
-        noticeList.value = res.data.data;
-      }
+      const res = await api_api.apiGetNotice({ select: true });
+      noticeList.value = res.data.data;
+    };
+    const getClassify = async () => {
+      const res = await api_api.apiGetClassify({ pageSize: 3 });
+      classifyList.value = res.data.data;
     };
     const goPreview = () => {
       common_vendor.index.navigateTo({
@@ -66,6 +48,7 @@ const _sfc_main = {
     getBanner();
     getDayRandom();
     getNotice();
+    getClassify();
     return (_ctx, _cache) => {
       return {
         a: common_vendor.p({
@@ -108,9 +91,13 @@ const _sfc_main = {
             c: common_vendor.o(goPreview, item._id)
           };
         }),
-        i: common_vendor.f(8, (item, k0, i0) => {
+        i: common_vendor.f(classifyList.value, (item, k0, i0) => {
           return {
-            a: "1cf27b2a-7-" + i0
+            a: item._id,
+            b: "1cf27b2a-7-" + i0,
+            c: common_vendor.p({
+              item
+            })
           };
         }),
         j: common_vendor.p({

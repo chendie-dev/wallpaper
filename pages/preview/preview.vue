@@ -1,15 +1,15 @@
 <template>
 	<view class="preview">
-		<swiper  circular="true"  >
-			<swiper-item v-for="item in 3">
-				<image @click="maskChange" src="/common/images/preview1.jpg" mode=""></image>
+		<swiper  circular="true" :current="currentIndex" @change="swiperChange" >
+			<swiper-item v-for="(item,index) in classList" :key="item._id">
+				<image  @click="maskChange" :src="item.picurl" mode=""></image>
 			</swiper-item>
 		</swiper>
 		<view class="mask" v-if="maskShow">
 			<view class="goBack" @click="goBack" :style="{top:getStatusBarHeight()+'px'}">
 				<uni-icons type="back" color="#fff" size="20"></uni-icons>
 			</view>
-			<view class="count">3/9</view>
+			<view class="count">{{currentIndex+1}}/{{classList.length}}</view>
 			<view class="time">
 				<uni-dateformat :date="new Date()" format="hh:mm"></uni-dateformat>
 			</view>
@@ -21,7 +21,7 @@
 					<uni-icons type="info" size="28"></uni-icons>
 					<view class="text">信息</view>
 				</view>
-				<view class="box">
+				<view class="box" @click="clickStarOpen">
 					<uni-icons type="star" size="28"></uni-icons>
 					<view class="text">评分</view>
 				</view>
@@ -44,34 +44,34 @@
 							<view class="content">
 								<view class="row">
 									<view class="label">壁纸ID：</view>
-									<!-- <text selectable class="value">{{currentInfo._id}}</text> -->
+									<text selectable class="value">{{currentItem._id}}</text>
 								</view>
 								<view class="row">
 									<view class="label">发布者：</view>
-									<!-- <text class="value">{{currentInfo.nickname}}</text> -->
+									<text class="value">{{currentItem.nickname}}</text>
 								</view>
 		
 								<view class="row">
 									<text class="label">评分：</text>
 									<view class='value roteBox'>
-										<!-- <uni-rate readonly touchable :value="currentInfo.score" size="16" />
-										<text class="score">{{currentInfo.score}}分</text> -->
+										<uni-rate readonly touchable :value="currentItem.score" size="16" />
+										<text class="score">{{currentItem.score}}分</text>
 									</view>
 								</view>
 		
 								<view class="row">
 									<text class="label">摘要：</text>
-									<!-- <view class='value'>
-										{{currentInfo.description}}
-									</view> -->
+									<view class='value'>
+										{{currentItem.description}}
+									</view>
 								</view>
 		
 								<view class="row">
 									<text class="label">标签：</text>
 									<view class='value tabs'>
-										<!-- <view class="tab" v-for="tab in currentInfo.tabs" :key="tab">
+										<view class="tab" v-for="tab in currentItem.tabs" :key="tab">
 											{{tab}}
-										</view> -->
+										</view>
 									</view>
 								</view>
 		
@@ -85,18 +85,18 @@
 						</scroll-view>
 					</view>
 				</uni-popup>
-				<uni-popup ref="scorePopup" :is-mask-click="false">
+		<uni-popup ref="scorePopup" :is-mask-click="false">
 					<view class="scorePopup">
 						<view class="popHeader">
 							<view></view>
 							<view class="title">{{isScore?'评分过了~':'壁纸评分'}}</view>
-							<view class="close" @click="clickScoreClose">
+							<view class="close" @click="clickStarClose">
 								<uni-icons type="closeempty" size="18" color="#999"></uni-icons>
 							</view>
 						</view>
 		
 						<view class="content">
-							<uni-rate v-model="userScore" allowHalf :disabled="isScore" disabled-color="#FFCA3E" />
+							<uni-rate v-model="userScore" allowHalf="true" :disabled="isScore" disabled-color="#FFCA3E" />
 							<text class="text">{{userScore}}分</text>
 						</view>
 		
@@ -105,16 +105,51 @@
 								plain>确认评分</button>
 						</view>
 					</view>
-				</uni-popup>
+		</uni-popup>
 		
-				</view>
+	</view>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import {onLoad} from'@dcloudio/uni-app'
 import {getStatusBarHeight} from '@/util/system.js'
+import {apiSetupScore} from '@/api/api.js'
 	const maskShow=ref(true);
-	const infoPopup=ref(null)
+	const infoPopup=ref(null);
+	const scorePopup=ref(null);
+	const currentIndex=ref();
+	const currentItem=ref()
+	const readImgIndexs=ref([])
+	const userScore=ref(0)
+	const isScore=ref(false)
+	let classList=uni.getStorageSync('classList')
+	classList=classList.map(item=>({...item,picurl:item.smallPicurl.replace('_small.webp','.jpg')}));
+	
+	onLoad((e)=>{
+		const {id}=e
+		let index=classList.findIndex(item=>item._id===id)
+		currentIndex.value=index
+		currentItem.value=classList[index]
+	})
+	
+	const submitScore=async()=>{
+		const res=await apiSetupScore({classid:currentItem.value.classid,wallId:currentItem.value._id,userScore:userScore.value})
+		console.log(res,'abc');
+		if(res.statusCode===200){
+			clickStarClose()
+			uni.showToast({
+				title:'评论成功',
+				icon:"none"
+			})
+		}
+	}
+	
+	const swiperChange=(e)=>{
+		const {detail:{current}}=e
+		currentIndex.value=current
+		currentItem.value=classList[current]
+	}
 	const maskChange=()=>{
 		maskShow.value=!maskShow.value
 	}
@@ -124,7 +159,12 @@ import {getStatusBarHeight} from '@/util/system.js'
 	const clickInfoOpen=()=>{
 		infoPopup.value.open()
 	}
-	
+	const clickStarOpen=()=>{
+		scorePopup.value.open()
+	}
+	const clickStarClose=()=>{
+		scorePopup.value.close()
+	}
 	const goBack=()=>{
 		uni.navigateBack()
 	}

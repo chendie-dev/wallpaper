@@ -54,7 +54,7 @@
 				</template>
 			</common-title>
 			<view class="content">
-				<theme-item v-for="item in 8"></theme-item>
+				<theme-item v-for="item in classifyList" :key="item._id" :item="item"></theme-item>
 				<theme-item :isMore="true" ></theme-item>
 			</view>
 		</view>
@@ -63,47 +63,28 @@
 
 <script setup>
 import { ref } from 'vue';
+import { apiGetBanner, apiGetClassify, apiGetDayRandom, apiGetNotice } from '@/api/api';
 	const bannerList=ref([])
 	const randomList=ref([])
 	const noticeList=ref([])
+	const classifyList=ref([])
 	const getBanner=async()=>{
-		const res=await uni.request({
-			url:"https://tea.qingnian8.com/api/bizhi/homeBanner",
-			// header::{
-			// 	"access-key":""
-			// }
-		})
-		if(res.data.errCode===0){
-			bannerList.value=res.data.data
-		}
+		const res=await apiGetBanner()
+		bannerList.value=res.data.data
 	}
-	
+
 	const getDayRandom=async()=>{
-		const res=await uni.request({
-			url:"https://tea.qingnian8.com/api/bizhi/randomWall",
-			// header::{
-			// 	"access-key":""
-			// }
-		})
-		if(res.data.errCode===0){
+		const res=await apiGetDayRandom()
 			randomList.value=res.data.data
-		}
 	}
 	const getNotice=async()=>{
-		const res=await uni.request({
-			url:"https://tea.qingnian8.com/api/bizhi/wallNewsList",
-			// header::{
-			// 	"access-key":""
-			// }
-			data:{
-				 select:true
-			}
-		})
-		if(res.data.errCode===0){
+		const res=await apiGetNotice({select:true})
 			noticeList.value=res.data.data
-		}
 	}
-	
+	const getClassify=async()=>{
+		const res=await apiGetClassify({pageSize:3})
+		classifyList.value=res.data.data
+	}
 	const goPreview=()=>{
 		uni.navigateTo({
 			url:"/pages/preview/preview"
@@ -112,6 +93,7 @@ import { ref } from 'vue';
 	getBanner()
 	getDayRandom()
 	getNotice()
+	getClassify()
 </script>
 
 <style lang="scss" scoped>
